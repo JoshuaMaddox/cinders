@@ -12,7 +12,7 @@ Airtable.configure({
 var base = Airtable.base(process.env.AIRTABLE_ID);
 function setPromise(agent) {
   return new Promise((response, reject) => {
-    base("Resources")
+    base("People")
       .select({
         view: "Grid view"
       })
@@ -21,9 +21,13 @@ function setPromise(agent) {
           let recordsArray = [];
           records.forEach(record => {
             let recordObj = {};
-            recordObj.Title = record.get("Title");
-            recordObj.Description = record.get("Description");
-            recordObj.URL = record.get("URL");
+            recordObj.Name = record.get("Name");
+            recordObj.Sector = record.get("Sector");
+            recordObj.Attachments = record.get("Attachments");
+            recordObj.photoLink = record.get("photoLink");
+            recordObj.Position = record.get("Position");
+            recordObj.Skills = record.get("Skills");
+            recordObj.LinkedIn = record.get("LinkedIn");
             recordsArray.push(recordObj);
           });
           response(recordsArray);
@@ -39,32 +43,7 @@ function setPromise(agent) {
   });
 }
 
-// exports.react = function(agent) {
-//   return setPromise(agent)
-//     .then(response => {
-//       console.log("I am the response in airtableHelper.js: ", response);
-//       response.forEach(record => {
-//         return agent.add(
-//           new Card({
-//             title: record.Title,
-//             imageUrl:
-//               "https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png",
-//             text: record.Description,
-//             buttonText: "This is a button",
-//             buttonUrl: record.URL
-//           })
-//         );
-//       });
-//     })
-//     .catch(err => agent.add(`${err}: I am the error in the catch`));
-// };
-
 function pingSlack(user, body) {
-  // let slackMessageBody = {
-  //   username: "Joshua",
-  //   text: "Hi Joshua. This is a message from Cinders, your friendly Slack bot",
-  //   icon_emoji: ":tada:"
-  // };
   requestLib.post(
     {
       headers: { "content-type": "application/json" },
@@ -83,10 +62,16 @@ function pingSlack(user, body) {
   );
 }
 
-exports.react = function(agent) {
+exports.testLookup = function(agent) {
   return setPromise(agent)
     .then(response => {
-      console.log("I am the response in airtableHelper.js: ", response);
+      const filteredRecords = response.filter(
+        record => record.Sector.includes(agent.parameters.Sectors) === true
+      );
+
+      filteredRecords.forEach(record => {
+        console.log("I am record AFTER FILTER: ", record);
+      });
       pingSlack("joshua", {
         // username: "Joshua",
         channel: "CMTHZ2QV9",
@@ -95,7 +80,117 @@ exports.react = function(agent) {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: "*Jo-Ann Tan*"
+              text: `*${response[3].Name}*`
+            }
+          },
+          {
+            type: "image",
+            title: {
+              type: "plain_text",
+              text: "Example Image",
+              emoji: true
+            },
+            image_url:
+              "https://www.plusacumen.org/sites/default/files/fpp/Jo-Ann%20Tan_600.jpg",
+            alt_text: "Example Image"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "*Last Known Position:* Director at Acumen Academy"
+            }
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text:
+                "*Visit Jo-Ann's LinkedIn Profile:* <https://www.linkedin.com/in/jo-ann-tan/>"
+            }
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Workforce Development",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Education",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Lean Data",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Systems Practice",
+                emoji: true
+              }
+            ]
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "Network With Jo-Ann"
+            },
+            accessory: {
+              type: "static_select",
+              placeholder: {
+                type: "plain_text",
+                text: "Take Action",
+                emoji: true
+              },
+              options: [
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Ask to Contact",
+                    emoji: true
+                  },
+                  value: "value-0"
+                },
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Save To Contacts",
+                    emoji: true
+                  },
+                  value: "value-1"
+                },
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Invite to Course",
+                    emoji: true
+                  },
+                  value: "value-2"
+                }
+              ]
+            }
+          }
+        ],
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*${response[1].Name}*`
             }
           },
           {
@@ -200,28 +295,6 @@ exports.react = function(agent) {
             }
           }
         ]
-      });
-
-      response.forEach(record => {
-        console.log("I am record: ", record);
-        let body = {
-          title: record.Title,
-          text: "Hey <@joshua>, did you see my file?",
-          imageUrl:
-            "https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png",
-          buttonText: "Hi",
-          buttonUrl: record.URL
-        };
-        return agent.add(
-          new Card({
-            title: record.Title,
-            imageUrl:
-              "https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png",
-            text: record.Description,
-            buttonText: "This is a button",
-            buttonUrl: record.URL
-          })
-        );
       });
     })
     .catch(err => agent.add(`${err}: I am the error in the catch`));

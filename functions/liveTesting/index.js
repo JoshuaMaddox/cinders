@@ -1,11 +1,6 @@
 // See https://github.com/dialogflow/dialogflow-fulfillment-nodejs
 // for Dialogflow fulfillment library docs, samples, and to report issues
-
-const airtable = {
-  id: "appdbGvXOjvqS2yIM",
-  key: "keyMUyNui5KgC4fu9"
-};
-
+require("dotenv").config();
 const express = require("express");
 const app = express();
 
@@ -13,7 +8,8 @@ const functions = require("firebase-functions");
 const { WebhookClient } = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 
-const react = require("./helpers/airtableHelper.js");
+const react = require("./airtableHelper.js");
+const testLookup = require("./airtableFilter.js");
 // import react from "./helpers/airtableHelper";
 
 app.get("/", (req, res) => res.send("online"));
@@ -40,6 +36,15 @@ app.post("/dialogflow", express.json(), (req, res) => {
   function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`This is from the fallback in our dialogflow Function`);
+  }
+
+  function personFinder(agent) {
+    const sectorWanted = agent.parameters.Sectors;
+    console.log("I am sectorwanted: ", sectorWanted);
+    agent.add(
+      "Person Finder Was Successfully Called! With Sector, ",
+      sectorWanted
+    );
   }
 
   //   function reactTest(agent) {
@@ -82,6 +87,7 @@ app.post("/dialogflow", express.json(), (req, res) => {
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
   intentMap.set("React", react.react);
+  intentMap.set("FindResource", testLookup.testLookup);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
