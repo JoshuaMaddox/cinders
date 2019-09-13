@@ -4,11 +4,15 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 
+//Delete to here
+const dialogflow = require("dialogflow");
+
 const functions = require("firebase-functions");
 const { WebhookClient } = require("dialogflow-fulfillment");
 const { Card, Suggestion } = require("dialogflow-fulfillment");
 
 const react = require("./airtableHelper.js");
+const testMe = require("./airtableHelper.js");
 const testLookup = require("./airtableFilter.js");
 // import react from "./helpers/airtableHelper";
 
@@ -88,6 +92,7 @@ app.post("/dialogflow", express.json(), (req, res) => {
   intentMap.set("Default Fallback Intent", fallback);
   intentMap.set("React", react.react);
   intentMap.set("FindResource", testLookup.testLookup);
+  intentMap.set("askToContact", testMe.testMe);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);

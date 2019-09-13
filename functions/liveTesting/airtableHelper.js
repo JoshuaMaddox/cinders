@@ -69,7 +69,7 @@ function pingSlack(user, body) {
     {
       headers: { "content-type": "application/json" },
       url:
-        "https://hooks.slack.com/services/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",
+        "https://hooks.slack.com/services/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",
       body: JSON.stringify(body)
     },
     function(error, response, body) {
@@ -87,9 +87,153 @@ exports.react = function(agent) {
   return setPromise(agent)
     .then(response => {
       console.log("I am the response in airtableHelper.js: ", response);
-      pingSlack("joshua", {
+      pingSlack("DN6MQE67Q", {
         // username: "Joshua",
-        channel: "CMTHZ2QV9",
+        channel: "DN6MQE67Q",
+        blocks: [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "*Jo-Ann Tan*"
+            }
+          },
+          {
+            type: "image",
+            title: {
+              type: "plain_text",
+              text: "Example Image",
+              emoji: true
+            },
+            image_url:
+              "https://www.plusacumen.org/sites/default/files/fpp/Jo-Ann%20Tan_600.jpg",
+            alt_text: "Example Image"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "*Last Known Position:* Director at Acumen Academy"
+            }
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text:
+                "*Visit Jo-Ann's LinkedIn Profile:* <https://www.linkedin.com/in/jo-ann-tan/>"
+            }
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Workforce Development",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Education",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Lean Data",
+                emoji: true
+              },
+              {
+                type: "plain_text",
+                text: ":heavy_check_mark: Systems Practice",
+                emoji: true
+              }
+            ]
+          },
+          {
+            type: "divider"
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: "Network With Jo-Ann"
+            },
+            accessory: {
+              type: "static_select",
+              placeholder: {
+                type: "plain_text",
+                text: "Take Action",
+                emoji: true
+              },
+              options: [
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Ask to Contact",
+                    emoji: true
+                  },
+                  value: "value-0"
+                },
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Save To Contacts",
+                    emoji: true
+                  },
+                  value: "value-1"
+                },
+                {
+                  text: {
+                    type: "plain_text",
+                    text: "Invite to Course",
+                    emoji: true
+                  },
+                  value: "value-2"
+                }
+              ]
+            }
+          }
+        ]
+      });
+
+      response.forEach(record => {
+        console.log("I am record: ", record);
+        let body = {
+          title: record.Title,
+          text: "Hey <@joshua>, did you see my file?",
+          imageUrl:
+            "https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png",
+          buttonText: "Hi",
+          buttonUrl: record.URL
+        };
+        return agent.add(
+          new Card({
+            title: record.Title,
+            imageUrl:
+              "https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png",
+            text: record.Description,
+            buttonText: "This is a button",
+            buttonUrl: record.URL
+          })
+        );
+      });
+    })
+    .catch(err => agent.add(`${err}: I am the error in the catch`));
+};
+
+exports.testMe = function(agent) {
+  return setPromise(agent)
+    .then(response => {
+      console.log("I am the response in airtableHelper.js: ", response);
+      pingSlack("DN6MQE67Q", {
+        // username: "Joshua",
+        channel: "DN6MQE67Q",
         blocks: [
           {
             type: "section",
